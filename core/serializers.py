@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from .models import Profile
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
@@ -56,3 +57,36 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = ['email']
 
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    weight = serializers.FloatField()
+    height = serializers.FloatField()
+    goal_weight = serializers.FloatField()
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Profile
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "user",
+            "weight",
+            "goal_weight",
+            "height",
+            "birth_date",
+            "fitness_level",
+            "fitness_goal",
+            "certification",
+            "years_of_experience",
+        ]
+        read_only_fields = ["id"]
+
+    def get_user(self, obj):
+        return obj.user.email
+
+    def create(self, validated_data):
+        user_id = self.context['user_id']
+        user = User.objects.get(pk=user_id)
+        return Profile.objects.create(**validated_data,user=user)

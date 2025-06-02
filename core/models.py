@@ -37,11 +37,33 @@ class User(AbstractBaseUser,PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-# class emailVerificationCode(models.Model):
-#     user = models.OneToOneField(User,on_delete=models.CASCADE)
-#     code = models.CharField(max_length=6)
-#     created_at = models.DateTimeField(auto_now_add=True)
 
-#     def is_expired(self):
-#         return timezone.now() > self.created_at + timezone.timedelta(minutes=10)
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+
+    weight = models.FloatField()  # in kg
+    goal_weight = models.FloatField(null=True, blank=True)
+    height = models.FloatField()  # in cm
+    birth_date = models.DateField(null=True, blank=True)
+
+    # Player-specific info
+    fitness_level = models.CharField(
+        max_length=20,
+        choices=[
+            ("BEGINNER", "Beginner"),
+            ("INTERMEDIATE", "Intermediate"),
+            ("ADVANCED", "Advanced"),
+        ],
+        null=True,
+        blank=True,
+    )
+    fitness_goal = models.TextField(
+        null=True, blank=True
+    )  # e.g., "Lose fat", "Build muscle"
+
+    certification = models.CharField(max_length=255, null=True, blank=True)
+    years_of_experience = models.PositiveIntegerField(null=True, blank=True)
 
