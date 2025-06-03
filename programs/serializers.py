@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from core.serializers import UserSerializer
 from core.models import User
-from .models import Exercise, Plan, ExerciseDetail,Sport,PlanSubscription,PlanRequest,Muscle,ExerciseMuscle
+from .models import Exercise, Plan, ExerciseDetail,Sport,PlanSubscription,PlanRequest,Muscle,ExerciseMuscle,NutritionPlan,FoodItem,MealDetail
 from django.db import transaction
 
 class SportSerializer(serializers.ModelSerializer):
@@ -194,3 +194,63 @@ class PlanRequestSerializer(serializers.ModelSerializer):
             owner=coach,
             **validated_data
         )
+    
+
+class FoodItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FoodItem
+        fields = [
+            'id', 'name_en', 'name_ar', 'quantity'
+        ]
+
+class MealDetailSerializer(serializers.ModelSerializer):
+    food_items = FoodItemSerializer(many=True)
+
+    class Meta:
+        model = MealDetail
+        fields = [
+            'id', 'week', 'day', 'meal_number',
+            'meal_name_en', 'meal_name_ar',
+            'calories', 'protein', 'carbs', 'fats',
+            'food_items'
+        ]
+
+class NutritionPlanSerializer(serializers.ModelSerializer):
+    meals = MealDetailSerializer(many=True)
+    owner = UserSerializer(read_only=True)  # assuming UserSerializer is defined
+
+    class Meta:
+        model = NutritionPlan
+        fields = [
+            'id', 'name_en', 'name_ar', 'target',
+            'description_en', 'description_ar',
+            'advice_en', 'advice_ar',
+            'weeks', 'image', 'owner', 'meals'
+        ]
+
+    def validate(self, data):
+        meals_data = data.get('meals')
+        if not meals_data:
+            raise serializers.ValidationError("At least one meal must be provided.")
+        return data
+
+    def _create_meals(self, plan, meals_data):
+        for meal_data in meals_data:
+            food_items_data = meal_data.pop('food_items')
+            meal = MealDetail.objects.create(plan=plan, **meal_data)
+            for food_item_data in food_items_data:
+                FoodItem.objects.create(meal=meal, **food_item_data)
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            owner = self.context['owner']
+            meals_data = validated_data.pop('meals')
+            plan = NutritionPlan.objects.create(owner=owner,**validated_data)
+            self._create_meals(plan, meals_data)
+            return plan
+
+    def update(self, instance, validated_data):
+        with transaction.atomic():
+            instance.delete()
+            # instance.owner = self.context['owner_id']
+            return self.create(validated_data)

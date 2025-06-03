@@ -70,3 +70,17 @@ class MuscleView(viewsets.ModelViewSet):
     queryset = Muscle.objects.all()
     serializer_class = MuscleSerializer
 
+
+class NutritionPlanViewSet(viewsets.ModelViewSet):
+    serializer_class = NutritionPlanSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Optimize queries with prefetch and select
+        return NutritionPlan.objects.prefetch_related(
+            'meals', 
+            'meals__food_items'
+        ).select_related('owner').filter(owner=self.request.user)
+
+    def get_serializer_context(self):
+        return {"owner": self.request.user}

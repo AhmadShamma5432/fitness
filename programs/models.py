@@ -20,6 +20,7 @@ class Sport(models.Model):
 
     def __str__(self):
         return self.name_en
+    
 class Exercise(models.Model):
     owner = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
     name_en = models.CharField(max_length=100)
@@ -127,3 +128,74 @@ class UserAnswer(models.Model):
 
     def __str__(self):
         return f"Answer to: {self.question}"
+
+class NutritionPlan(models.Model):
+    name_en = models.CharField(max_length=255)
+    name_ar = models.CharField(max_length=255)
+
+    target = models.CharField(max_length=255)
+
+    description_en = models.TextField()
+    description_ar = models.TextField()
+
+    advice_en = models.TextField(blank=True, null=True)
+    advice_ar = models.TextField(blank=True, null=True)
+
+    weeks = models.PositiveSmallIntegerField()
+    # kalories = models.IntegerField()
+    # protein = models.FloatField()  
+    # carbs = models.FloatField()    
+    # fats = models.FloatField()     
+
+    # meals_daily_number = models.PositiveSmallIntegerField()
+    # date_of_begin = models.DateField()
+
+
+    image = models.ImageField(upload_to='nutrition/images/', blank=True, null=True)
+
+    owner = models.ForeignKey(
+        AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='nutrition_plans'
+    )
+
+    def __str__(self):
+        return self.name_en
+    
+class MealDetail(models.Model):
+    plan = models.ForeignKey(
+        NutritionPlan,
+        on_delete=models.CASCADE,
+        related_name='meals'
+    )
+    week = models.PositiveSmallIntegerField()
+    day = models.PositiveSmallIntegerField()
+
+    meal_number = models.PositiveSmallIntegerField() 
+    meal_name_en = models.CharField(max_length=100)
+    meal_name_ar = models.CharField(max_length=100)
+
+    calories = models.IntegerField()
+    protein = models.FloatField() 
+    carbs = models.FloatField()
+    fats = models.FloatField()
+
+    class Meta:
+        unique_together = ('plan', 'week', 'day', 'meal_number')
+
+    def __str__(self):
+        return f"Week {self.week}, Day {self.day}, Meal {self.meal_number}"
+    
+class FoodItem(models.Model):
+    meal = models.ForeignKey(
+        MealDetail,
+        on_delete=models.CASCADE,
+        related_name='food_items'
+    )
+    name_en = models.CharField(max_length=100)
+    name_ar = models.CharField(max_length=100)
+
+    quantity = models.SmallIntegerField()
+
+    def __str__(self):
+        return f"{self.name_en} ({self.quantity})"

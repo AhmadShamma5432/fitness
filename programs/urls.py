@@ -10,10 +10,7 @@ router.register(r'plan_subscriptions', PlanSubscriptionView, basename='plan_subs
 router.register(r'plan_request', PlanRequestView, basename='plan_request')
 router.register(r'sport', SportView, basename='sport')
 router.register(r'muscle', MuscleView, basename='muscle')
-
-
-
-
+router.register(r'nutrition-plan', NutritionPlanViewSet, basename='nutrition-plan')
 
 urlpatterns = [
     path('', include(router.urls)),
