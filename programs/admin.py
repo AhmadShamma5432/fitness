@@ -1,3 +1,4 @@
+import nested_admin
 from django.contrib import admin
 from .models import (
     Muscle,
@@ -70,33 +71,20 @@ class PlanAdmin(admin.ModelAdmin):
     inlines = [ExerciseDetailInline]
 
 
-class FoodItemInline(admin.TabularInline):
+class FoodItemInline(nested_admin.NestedTabularInline):
     model = FoodItem
-    extra = 1  # Number of empty forms to show
+    extra = 1
     fields = ['name_en', 'name_ar', 'quantity']
 
-class MealDetailInline(admin.TabularInline):
+class MealDetailInline(nested_admin.NestedTabularInline):
     model = MealDetail
     extra = 1
     fields = ['week', 'day', 'meal_number', 'meal_name_en', 'meal_name_ar', 'calories', 'protein', 'carbs', 'fats']
-    inlines = [FoodItemInline]  # Nest FoodItemInline inside MealDetail
-
-@admin.register(NutritionPlan)
-class NutritionPlanAdmin(admin.ModelAdmin):
-    list_display = ['name_en', 'name_ar', 'target', 'weeks', 'owner']
-    search_fields = ['name_en', 'name_ar', 'target']
-    list_filter = ['weeks', 'owner']
-    inlines = [MealDetailInline]
-
-@admin.register(MealDetail)
-class MealDetailAdmin(admin.ModelAdmin):
-    list_display = ['plan', 'week', 'day', 'meal_number', 'meal_name_en']
-    search_fields = ['meal_name_en', 'meal_name_ar']
-    list_filter = ['week', 'day', 'meal_number']
     inlines = [FoodItemInline]
 
-@admin.register(FoodItem)
-class FoodItemAdmin(admin.ModelAdmin):
-    list_display = ['meal', 'name_en', 'name_ar', 'quantity']
+@admin.register(NutritionPlan)
+class NutritionPlanAdmin(nested_admin.NestedModelAdmin):
+    inlines = [MealDetailInline]
+    list_display = ['name_en', 'target', 'weeks', 'owner']
     search_fields = ['name_en', 'name_ar']
-    list_filter = ['meal__plan']
+    list_filter = ['owner']
