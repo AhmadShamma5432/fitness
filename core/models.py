@@ -53,9 +53,9 @@ class Profile(models.Model):
     fitness_level = models.CharField(
         max_length=20,
         choices=[
-            ("BEGINNER", "Beginner"),
-            ("INTERMEDIATE", "Intermediate"),
-            ("ADVANCED", "Advanced"),
+            ("Beginner", "Beginner"),
+            ("Intermediate", "Intermediate"),
+            ("Advanced", "Advanced"),
         ],
         null=True,
         blank=True,
