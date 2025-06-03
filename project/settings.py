@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'dal_select2',
     'djoser',
     'programs',
+    'nested_admin'
 ]
 
 MIDDLEWARE = [
