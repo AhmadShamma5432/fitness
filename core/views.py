@@ -20,7 +20,7 @@ class UserUpdateView(RetrieveModelMixin,UpdateModelMixin,ListModelMixin,GenericV
             return UserRetrieveSerializer
         
 class ProfileView(
-    CreateModelMixin, UpdateModelMixin, RetrieveModelMixin, GenericViewSet
+    ListModelMixin,CreateModelMixin, UpdateModelMixin, RetrieveModelMixin, GenericViewSet
 ):
     serializer_class = ProfileSerializer
 
