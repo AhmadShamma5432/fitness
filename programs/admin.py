@@ -7,6 +7,9 @@ from .models import (
     Plan,
     ExerciseDetail,
     PlanSubscription,
+    MealDetail,
+    FoodItem,
+    NutritionPlan
 )
 
 # --------------------------
@@ -65,3 +68,35 @@ class PlanAdmin(admin.ModelAdmin):
     search_fields = ('name_en', 'name_ar', 'owner__username', 'sport__name_en')
     list_filter = ('sport', 'owner')
     inlines = [ExerciseDetailInline]
+
+
+class FoodItemInline(admin.TabularInline):
+    model = FoodItem
+    extra = 1  # Number of empty forms to show
+    fields = ['name_en', 'name_ar', 'quantity']
+
+class MealDetailInline(admin.TabularInline):
+    model = MealDetail
+    extra = 1
+    fields = ['week', 'day', 'meal_number', 'meal_name_en', 'meal_name_ar', 'calories', 'protein', 'carbs', 'fats']
+    inlines = [FoodItemInline]  # Nest FoodItemInline inside MealDetail
+
+@admin.register(NutritionPlan)
+class NutritionPlanAdmin(admin.ModelAdmin):
+    list_display = ['name_en', 'name_ar', 'target', 'weeks', 'owner']
+    search_fields = ['name_en', 'name_ar', 'target']
+    list_filter = ['weeks', 'owner']
+    inlines = [MealDetailInline]
+
+@admin.register(MealDetail)
+class MealDetailAdmin(admin.ModelAdmin):
+    list_display = ['plan', 'week', 'day', 'meal_number', 'meal_name_en']
+    search_fields = ['meal_name_en', 'meal_name_ar']
+    list_filter = ['week', 'day', 'meal_number']
+    inlines = [FoodItemInline]
+
+@admin.register(FoodItem)
+class FoodItemAdmin(admin.ModelAdmin):
+    list_display = ['meal', 'name_en', 'name_ar', 'quantity']
+    search_fields = ['name_en', 'name_ar']
+    list_filter = ['meal__plan']
