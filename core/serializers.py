@@ -50,7 +50,7 @@ class UserSerializer(BaseUserSerializer):
 class UserRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id','email']
+        fields = ['id','email','role']
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
