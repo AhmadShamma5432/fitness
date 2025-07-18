@@ -133,18 +133,6 @@ class PlanSerializer(serializers.ModelSerializer):
         instance.delete()
         return self.create(validated_data)
     
-
-class PlanSubscriptionSerializer(serializers.ModelSerializer):
-    plan = PlanSerializer(read_only=True)
-    user = UserSerializer(read_only=True)
-    plan_id = serializers.IntegerField(write_only=True)
-    user_id = serializers.IntegerField(write_only=True)
-    
-    class Meta:
-        model = PlanSubscription
-        fields = ['plan','user','plan_id','user_id']
-
-
 class PlanRequestSerializer(serializers.ModelSerializer):
     # Read-only nested representations
     sport = SportSerializer(read_only=True)
@@ -254,3 +242,24 @@ class NutritionPlanSerializer(serializers.ModelSerializer):
             instance.delete()
             # instance.owner = self.context['owner_id']
             return self.create(validated_data)
+
+
+class PlanSubscriptionSerializer(serializers.ModelSerializer):
+    plan = PlanSerializer(read_only=True)
+    nutrition_plan = NutritionPlanSerializer(read_only=True)
+
+    plan_id = serializers.IntegerField(write_only=True,required=False)
+    nutritionPlan_id = serializers.IntegerField(write_only=True,required=False)
+
+    user = UserSerializer(read_only=True)
+    
+    class Meta:
+        model = PlanSubscription
+        fields = ['plan','user','plan_id','nutrition_plan','nutritionPlan_id','user_id']
+    
+    def create(self, validated_data):
+        user = self.context['user']
+        planSubscription = PlanSubscription.objects.create(**validated_data,user=user) 
+        planSubscription.save() 
+        return {"message": "Congratulations you subscriped to a new plan"}
+

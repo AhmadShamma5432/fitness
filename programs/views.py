@@ -2,6 +2,8 @@
 from rest_framework import viewsets
 from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.mixins import *
+from rest_framework.viewsets import GenericViewSet
 from .models import *
 from .serializers import * 
 from .permissions import * 
@@ -47,12 +49,6 @@ class PlanViewSet(viewsets.ModelViewSet):
                 'plan_id': plan_id
                 }
 
-class PlanSubscriptionView(viewsets.ModelViewSet):
-    queryset = PlanSubscription.objects.select_related('plan','user').all()
-    serializer_class = PlanSubscriptionSerializer
-
-
-
 class PlanRequestView(viewsets.ModelViewSet):
     serializer_class = PlanRequestSerializer
 
@@ -84,3 +80,11 @@ class NutritionPlanViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         return {"owner": self.request.user}
+
+class PlanSubscriptionView(CreateModelMixin,GenericViewSet):
+    queryset = PlanSubscription.objects.select_related('nutritionPlan','plan','user')
+    serializer_class = PlanSubscriptionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_context(self):
+        return {"user":self.request.user}

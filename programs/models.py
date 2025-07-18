@@ -79,15 +79,6 @@ class ExerciseDetail(models.Model):
     class Meta:
         unique_together = ('plan', 'exercise', 'week', 'day')
 
-class PlanSubscription(models.Model):
-    plan = models.ForeignKey(Plan,on_delete=models.CASCADE)
-    user = models.ForeignKey(AUTH_USER_MODEL,on_delete=models.CASCADE)
-    # plan_type = models.CharField(choices=PLAN_TYPE_CHOICES,max_length=50)
-    #start_date = models.DateTimeField(auto_now_add=True)
-    #end_date = models.DateTimeField(null=True, blank=True)
-    class Meta:
-        unique_together = ('plan', 'user')
-
 class PlanRequest(models.Model):
     """
     Represents a request from a user to a coach for a custom plan.
@@ -199,3 +190,9 @@ class FoodItem(models.Model):
 
     def __str__(self):
         return f"{self.name_en} ({self.quantity})"
+
+
+class PlanSubscription(models.Model):
+    plan = models.ForeignKey(Plan,on_delete=models.CASCADE,blank=True,null=True)
+    nutritionPlan = models.ForeignKey(NutritionPlan,on_delete=models.CASCADE,blank=True,null=True)
+    user = models.ForeignKey(AUTH_USER_MODEL,on_delete=models.CASCADE)
